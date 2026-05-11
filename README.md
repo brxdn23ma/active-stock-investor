@@ -1,33 +1,29 @@
-# Stock Dashboard
+# Active Stock Investor
 
-A modern business analytics dashboard for stock market analysis and visualization.
+My personal stock market analytics dashboard.
 
-## 🎯 Project Overview
+## About the Project
 
-`stock-dashboard` is a comprehensive data analytics project designed to track, analyze, and visualize stock market data. It combines data engineering, financial analysis, and interactive visualization to deliver actionable insights for investors, analysts, and business users.
+Hi, I'm **Brandon**.
+
+This dashboard helps me track stocks, analyze market data, and make better investing decisions — all in one clean, interactive place.
 
 ### Key Features
-- **Real-time & Historical Stock Data** ingestion from multiple sources
-- **Interactive Dashboard** with charts, technical indicators, and performance metrics
-- **Financial Analysis** (returns, volatility, correlation, risk metrics)
-- **Portfolio Tracking** and performance monitoring
-- **Automated Reporting** and alerts
-- **Clean, scalable architecture** built with Python
+- Real-time & historical stock data
+- Interactive charts with technical indicators
+- Performance metrics (returns, volatility, risk)
+- Portfolio tracking
+- Clean visualizations
 
 ### Tech Stack
-- **Python** (Pandas, NumPy, yfinance, Plotly/Dash/Streamlit)
-- **Data Visualization** – Plotly, Dash or Streamlit
-- **Database** – SQLite / PostgreSQL
-- **Version Control** – Git + GitHub
-- **Deployment** – (to be added: Streamlit Cloud, Heroku, AWS, Docker)
-
-### Goals
-- Build a production-grade analytics tool for stock analysis
-- Demonstrate end-to-end business analytics skills (data collection → processing → visualization → insight)
-- Create a portfolio piece that showcases both technical and business understanding
+- **Python** – Pandas, NumPy, yfinance
+- **Visualization** – Plotly + Streamlit
+- **Database** – SQLite
 
 ---
 
 **Status**: 🚀 In Development
 
-Contributions, feedback, and stars are welcome!
+Open to feedback and ideas. Star ⭐ if you find it useful!
+
+**Built by Brandon**
