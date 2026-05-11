@@ -22,8 +22,8 @@ This dashboard helps me track stocks, analyze market data, and make better inves
 
 ---
 
-**Status**: 🚀 In Development
+**Status**: In Development
 
-Open to feedback and ideas. Star ⭐ if you find it useful!
+Open to feedback and ideas!
 
 **Built by Brandon**
