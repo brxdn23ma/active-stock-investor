@@ -1,0 +1,416 @@
+
+<h2 class="sr-only">Tesla valuation model v2 — three-scenario sum-of-parts analytical dashboard, target year 2028, with enterprise value, equity bridge, and implied share price</h2>
+
+<style>
+.dash { padding: 1.5rem 0 2rem; }
+.section { margin: 0 0 2rem; }
+.section-label { font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 0 0 .75rem; padding-bottom: .5rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.125rem 1.25rem; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; }
+.pill-purple { background: #EEEDFE; color: #3C3489; }
+.pill-teal   { background: #E1F5EE; color: #085041; }
+.pill-amber  { background: #FAEEDA; color: #633806; }
+.pill-red    { background: #FCEBEB; color: #791F1F; }
+.pill-blue   { background: #E6F1FB; color: #0C447C; }
+.pill-green  { background: #EAF3DE; color: #27500A; }
+@media (prefers-color-scheme: dark) {
+  .pill-purple { background: #26215C; color: #AFA9EC; }
+  .pill-teal   { background: #04342C; color: #5DCAA5; }
+  .pill-amber  { background: #412402; color: #EF9F27; }
+  .pill-red    { background: #501313; color: #F09595; }
+  .pill-blue   { background: #042C53; color: #85B7EB; }
+  .pill-green  { background: #173404; color: #97C459; }
+}
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.sc-card { border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); padding: 1rem 1.125rem; }
+.sc-card.base-card { border: 2px solid #1D9E75; }
+.sc-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .09em; color: var(--color-text-tertiary); margin: 0 0 6px; }
+.sc-ev { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px; font-family: var(--font-serif); }
+.sc-detail { font-size: 11px; color: var(--color-text-secondary); margin: 0; }
+.sc-price { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 8px 0 0; }
+.sc-prob { font-size: 11px; color: var(--color-text-tertiary); margin: 2px 0 0; }
+.sc-div { height: 0.5px; background: var(--color-border-tertiary); margin: 10px 0; }
+.metric-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 0 0 1rem; }
+.metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .75rem 1rem; }
+.metric-lbl { font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 3px; }
+.metric-val { font-size: 20px; font-weight: 500; color: var(--color-text-primary); font-family: var(--font-serif); }
+.metric-sub { font-size: 11px; color: var(--color-text-secondary); margin: 1px 0 0; }
+.seg-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 0 0 1.25rem; }
+.seg-card { padding: .875rem 1rem; border-radius: var(--border-radius-md); }
+.seg-fsd { background: #EEEDFE; }
+.seg-ev  { background: #E1F5EE; }
+.seg-rt  { background: #FAEEDA; }
+@media (prefers-color-scheme: dark) {
+  .seg-fsd { background: #26215C; }
+  .seg-ev  { background: #04342C; }
+  .seg-rt  { background: #412402; }
+}
+.seg-name { font-size: 11px; font-weight: 500; margin: 0 0 4px; color: var(--color-text-primary); }
+.seg-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.45; margin: 0; }
+.bridge-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: .75rem 0; }
+.bridge-box { border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); padding: .5rem .875rem; text-align: center; min-width: 80px; }
+.bridge-val { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin: 0; font-family: var(--font-serif); }
+.bridge-lbl { font-size: 10px; color: var(--color-text-tertiary); margin: 2px 0 0; }
+.bridge-op { font-size: 14px; color: var(--color-text-tertiary); font-weight: 500; }
+.bridge-highlight { background: #E1F5EE; border-color: #1D9E75; }
+@media (prefers-color-scheme: dark) { .bridge-highlight { background: #04342C; border-color: #1D9E75; } }
+.bridge-highlight .bridge-val { color: #085041; }
+@media (prefers-color-scheme: dark) { .bridge-highlight .bridge-val { color: #5DCAA5; } }
+.assump-tbl { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+.assump-tbl th { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-tertiary); padding: 0 8px 8px; text-align: left; }
+.assump-tbl th:not(:first-child) { text-align: right; }
+.assump-tbl td { padding: 7px 8px; border-top: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); }
+.assump-tbl td:first-child { color: var(--color-text-primary); font-size: 12px; }
+.assump-tbl td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+.td-bear { color: #A32D2D; font-weight: 500; }
+.td-base { color: #185FA5; font-weight: 500; }
+.td-bull { color: #3B6D11; font-weight: 500; }
+@media (prefers-color-scheme: dark) {
+  .td-bear { color: #F09595; }
+  .td-base { color: #85B7EB; }
+  .td-bull { color: #97C459; }
+}
+.range-track { position: relative; height: 8px; background: var(--color-background-secondary); border-radius: 99px; margin: 1.5rem 0 2rem; }
+.range-fill { position: absolute; top: 0; height: 100%; background: var(--color-border-secondary); border-radius: 99px; }
+.range-marker { position: absolute; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--color-background-primary); }
+.range-label { position: absolute; font-size: 10px; top: 16px; transform: translateX(-50%); white-space: nowrap; color: var(--color-text-secondary); font-weight: 500; }
+.range-main-label { position: absolute; font-size: 10px; bottom: 16px; transform: translateX(-50%); white-space: nowrap; color: var(--color-text-tertiary); }
+.note-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .75rem 1rem; font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin: .75rem 0 0; }
+.legend-row { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 10px; font-size: 11px; color: var(--color-text-secondary); }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-sq { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.ev-big { font-size: 32px; font-weight: 500; color: var(--color-text-primary); font-family: var(--font-serif); margin: 0; }
+.ev-sub { font-size: 13px; color: var(--color-text-secondary); margin: 4px 0 0; }
+.sendprompt-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 1rem 0 0; }
+</style>
+
+<div class="dash">
+
+  <div class="section">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 1rem;">
+      <div>
+        <div style="font-size:16px;font-weight:500;color:var(--color-text-primary);margin:0 0 4px;">Tesla — sum-of-parts valuation model v2</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);">Three-scenario enterprise value analysis · Target year 2028</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <span class="pill pill-purple"><i class="ti ti-brand-tesla" aria-hidden="true" style="font-size:13px;"></i> TSLA</span>
+        <span class="pill pill-teal">SOTP framework</span>
+        <span class="pill pill-amber">2028E</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 1rem;">
+        This model applies a <strong style="font-weight:500;color:var(--color-text-primary);">sum-of-parts (SOTP) valuation framework</strong> to Tesla, treating the company as three structurally distinct businesses — each with its own economics, growth trajectory, and appropriate valuation multiple. The three segments are valued independently and aggregated to a consolidated enterprise value. An equity bridge then adjusts for Tesla's net cash position and divides by diluted share count to produce an implied share price per scenario.
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7;margin:0 0 1rem;">
+        The model is explicitly <strong style="font-weight:500;color:var(--color-text-primary);">forward-looking</strong>, targeting 2028 operating conditions rather than current reported financials — a deliberate design choice to capture Tesla's optionality in autonomous driving and software monetisation, which are not yet meaningfully reflected in today's income statement. Three scenarios (bear, base, bull) each carry independent assumptions for the six key value drivers; they are no longer simple multipliers on a single output, but distinct narratives about how Tesla's competitive position evolves.
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7;margin:0;">
+        <strong style="font-weight:500;color:var(--color-text-primary);">How to read this dashboard:</strong> start with the segment overview to understand what each business unit contributes, then compare how the composition shifts across scenarios — the most important analytical insight is not the absolute valuation but the <em>changing mix</em> between EV (mature), FSD (scaling), and Robotaxi (speculative).
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">The three business segments</div>
+    <div class="seg-row">
+      <div class="seg-card seg-fsd">
+        <div class="seg-name" style="color:#3C3489;"><i class="ti ti-cpu" aria-hidden="true" style="font-size:13px;margin-right:4px;"></i> FSD software</div>
+        <div class="seg-desc" style="color:#534AB7;">Full Self-Driving as a recurring subscription platform. Revenue = fleet × penetration rate × annual fee. Valued as a high-margin software business on a P/E multiple reflecting its SaaS characteristics (75% gross margin, high incremental value).</div>
+      </div>
+      <div class="seg-card seg-ev">
+        <div class="seg-name" style="color:#085041;"><i class="ti ti-car" aria-hidden="true" style="font-size:13px;margin-right:4px;"></i> EV car company</div>
+        <div class="seg-desc" style="color:#0F6E56;">The legacy hardware business — vehicle manufacturing and delivery. Valued on a straightforward P/E basis applied to normalised EV earnings. This is the model's anchor segment and least speculative input.</div>
+      </div>
+      <div class="seg-card seg-rt">
+        <div class="seg-name" style="color:#633806;"><i class="ti ti-steering-wheel" aria-hidden="true" style="font-size:13px;margin-right:4px;"></i> Robotaxi network</div>
+        <div class="seg-desc" style="color:#854F0B;">An Uber-like autonomous ride-hail platform. Tesla deploys a vehicle fleet, earns a 25% platform commission on gross fares, and the resulting operating profit is capitalised at a premium multiple reflecting the platform network effect and capital-light scaling.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Probability-weighted expected values</div>
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 4px;">Expected enterprise value</div>
+        <div class="ev-big">$554.7B</div>
+        <div class="ev-sub">20% × $172.4B  +  50% × $461.4B  +  30% × $965.3B</div>
+      </div>
+      <div style="width:0.5px;height:60px;background:var(--color-border-tertiary);flex-shrink:0;"></div>
+      <div>
+        <div style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 4px;">Expected equity value</div>
+        <div class="ev-big">$591.7B</div>
+        <div class="ev-sub">After adding $37B net cash to enterprise value</div>
+      </div>
+      <div style="width:0.5px;height:60px;background:var(--color-border-tertiary);flex-shrink:0;"></div>
+      <div>
+        <div style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 4px;">Expected share price</div>
+        <div class="ev-big">$184.92</div>
+        <div class="ev-sub">Equity value ÷ 3,200M diluted shares</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Scenario comparison</div>
+    <div class="grid3">
+      <div class="sc-card">
+        <div class="sc-label"><span class="pill pill-red" style="font-size:10px;">Bear · 20% prob.</span></div>
+        <div class="sc-ev">$172.4B</div>
+        <div class="sc-detail">enterprise value</div>
+        <div class="sc-div"></div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.5;">FSD penetration disappoints at 15%. EV earnings compress to $8B. Robotaxi limited to 0.5M vehicles. Multiples contract across all three segments as growth misses expectations.</div>
+        <div class="sc-div"></div>
+        <div class="sc-price">$65.44 / share</div>
+        <div class="sc-prob">Equity: $209.4B</div>
+      </div>
+      <div class="sc-card base-card">
+        <div class="sc-label"><span class="pill pill-blue" style="font-size:10px;">Base · 50% prob. · central case</span></div>
+        <div class="sc-ev">$461.4B</div>
+        <div class="sc-detail">enterprise value</div>
+        <div class="sc-div"></div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.5;">30% FSD penetration, $13B EV earnings, 2M robotaxi vehicles. All assumptions align to the model's base inputs. Multiples held at moderate levels reflecting steady execution without re-rating.</div>
+        <div class="sc-div"></div>
+        <div class="sc-price">$155.74 / share</div>
+        <div class="sc-prob">Equity: $498.4B</div>
+      </div>
+      <div class="sc-card">
+        <div class="sc-label"><span class="pill pill-green" style="font-size:10px;">Bull · 30% prob.</span></div>
+        <div class="sc-ev">$965.3B</div>
+        <div class="sc-detail">enterprise value</div>
+        <div class="sc-div"></div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.5;">FSD reaches 50% of fleet. EV earnings recover to $18B. Robotaxi scales to 4M vehicles. Multiple expansion on AI narrative — FSD at 30×, EV at 25×, Robotaxi at 35× reflecting platform re-rating.</div>
+        <div class="sc-div"></div>
+        <div class="sc-price">$313.20 / share</div>
+        <div class="sc-prob">Equity: $1,002.3B</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Segment composition by scenario</div>
+    <div class="legend-row">
+      <span class="legend-item"><span class="legend-sq" style="background:#7F77DD;"></span> FSD software</span>
+      <span class="legend-item"><span class="legend-sq" style="background:#1D9E75;"></span> EV car company</span>
+      <span class="legend-item"><span class="legend-sq" style="background:#EF9F27;"></span> Robotaxi network</span>
+    </div>
+    <div style="position:relative;width:100%;height:260px;">
+      <canvas id="segChart" role="img" aria-label="Stacked bar chart showing segment composition across Bear, Base, and Bull scenarios. Bear: FSD $24.3B, EV $120B, Robotaxi $28.1B. Base: FSD $60.75B, EV $260B, Robotaxi $140.6B. Bull: FSD $121.5B, EV $450B, Robotaxi $393.75B.">Segment valuations — Bear: FSD 24.3, EV 120, RT 28.1. Base: FSD 60.75, EV 260, RT 140.6. Bull: FSD 121.5, EV 450, RT 393.75.</canvas>
+    </div>
+    <div class="note-box">The critical analytical observation is how the <strong style="color:var(--color-text-primary);font-weight:500;">composition shifts</strong> across scenarios, not merely the absolute size. In the bear case, the EV segment dominates at 70% of enterprise value — Tesla trades largely as an automobile manufacturer. In the bull case, Robotaxi alone accounts for 41% of total value ($393.8B of $965.3B), surpassing the EV segment — at that point the market is pricing Tesla as a transportation-as-a-service platform, not a carmaker. This compositional shift is the model's most important insight.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Segment mix — percentage breakdown</div>
+    <div style="position:relative;width:100%;height:170px;">
+      <canvas id="mixChart" role="img" aria-label="Percentage breakdown of Tesla enterprise value by segment across Bear, Base, and Bull scenarios.">Bear: FSD 14%, EV 70%, RT 16%. Base: FSD 13%, EV 56%, RT 30%. Bull: FSD 13%, EV 47%, RT 41%.</canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Implied share price range</div>
+    <div style="padding: 0 8px;">
+      <div class="range-track">
+        <div class="range-fill" style="left:0%;width:100%;opacity:0.15;"></div>
+        <div class="range-marker" style="left:0%;background:#E24B4A;"></div>
+        <div class="range-marker" style="left:37.3%;background:#378ADD;"></div>
+        <div class="range-marker" style="left:48.5%;background:#888780;"></div>
+        <div class="range-marker" style="left:100%;background:#639922;"></div>
+        <span class="range-label" style="left:0%;color:#A32D2D;">$65<br><span style="font-size:9px;color:var(--color-text-tertiary);">bear</span></span>
+        <span class="range-label" style="left:37.3%;color:#185FA5;">$156<br><span style="font-size:9px;color:var(--color-text-tertiary);">base</span></span>
+        <span class="range-label" style="left:48.5%;color:#5F5E5A;">$185<br><span style="font-size:9px;color:var(--color-text-tertiary);">expected</span></span>
+        <span class="range-label" style="left:100%;color:#3B6D11;">$313<br><span style="font-size:9px;color:var(--color-text-tertiary);">bull</span></span>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:3.5rem;">Implied price range: $65 (bear) → $313 (bull) · 4.8× spread reflects the binary nature of autonomous driving outcomes · Expected value $184.92 sits above the base case ($155.74) due to the asymmetric bull upside</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Equity bridge — base case</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin:0 0 .75rem;line-height:1.6;">The equity bridge translates enterprise value (what the whole business is worth) into equity value (what shareholders own) and finally into a per-share price. Tesla's net cash position of $37B — the result of its strong balance sheet — adds directly to shareholder equity.</div>
+    <div class="bridge-row">
+      <div class="bridge-box">
+        <div class="bridge-val">$60.75B</div>
+        <div class="bridge-lbl">FSD valuation</div>
+      </div>
+      <div class="bridge-op">+</div>
+      <div class="bridge-box">
+        <div class="bridge-val">$260.0B</div>
+        <div class="bridge-lbl">EV valuation</div>
+      </div>
+      <div class="bridge-op">+</div>
+      <div class="bridge-box">
+        <div class="bridge-val">$140.6B</div>
+        <div class="bridge-lbl">Robotaxi valuation</div>
+      </div>
+      <div class="bridge-op">=</div>
+      <div class="bridge-box">
+        <div class="bridge-val">$461.4B</div>
+        <div class="bridge-lbl">Enterprise value</div>
+      </div>
+    </div>
+    <div class="bridge-row">
+      <div class="bridge-box" style="opacity:0.3;">
+        <div class="bridge-val" style="font-size:12px;">↑ above</div>
+        <div class="bridge-lbl">carry forward</div>
+      </div>
+      <div class="bridge-op">+</div>
+      <div class="bridge-box">
+        <div class="bridge-val">$37.0B</div>
+        <div class="bridge-lbl">net cash on balance sheet</div>
+      </div>
+      <div class="bridge-op">=</div>
+      <div class="bridge-box bridge-highlight">
+        <div class="bridge-val">$498.4B</div>
+        <div class="bridge-lbl">equity value</div>
+      </div>
+      <div class="bridge-op">÷</div>
+      <div class="bridge-box">
+        <div class="bridge-val">3,200M</div>
+        <div class="bridge-lbl">diluted shares</div>
+      </div>
+      <div class="bridge-op">=</div>
+      <div class="bridge-box bridge-highlight">
+        <div class="bridge-val">$155.74</div>
+        <div class="bridge-lbl">implied share price</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Scenario-specific assumptions — all six key drivers</div>
+    <div class="card" style="padding: .75rem 1.25rem;">
+      <table class="assump-tbl">
+        <thead>
+          <tr>
+            <th style="width:44%;">Assumption</th>
+            <th class="td-bear">Bear</th>
+            <th class="td-base">Base</th>
+            <th class="td-bull">Bull</th>
+            <th style="text-align:right;color:var(--color-text-tertiary);">Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>FSD penetration rate</td>
+            <td class="td-bear">15%</td>
+            <td class="td-base">30%</td>
+            <td class="td-bull">50%</td>
+            <td style="font-size:11px;color:var(--color-text-tertiary);text-align:right;">Current ~12%; base assumes steady adoption growth</td>
+          </tr>
+          <tr>
+            <td>EV segment earnings</td>
+            <td class="td-bear">$8.0B</td>
+            <td class="td-base">$13.0B</td>
+            <td class="td-bull">$18.0B</td>
+            <td style="font-size:11px;color:var(--color-text-tertiary);text-align:right;">2025 actual ~$3.8B; targets reflect 2028E recovery</td>
+          </tr>
+          <tr>
+            <td>FSD revenue multiple</td>
+            <td class="td-bear">20×</td>
+            <td class="td-base">25×</td>
+            <td class="td-bull">30×</td>
+            <td style="font-size:11px;color:var(--color-text-tertiary);text-align:right;">Multiple compresses or expands with growth realisation</td>
+          </tr>
+          <tr>
+            <td>EV earnings multiple</td>
+            <td class="td-bear">15×</td>
+            <td class="td-base">20×</td>
+            <td class="td-bull">25×</td>
+            <td style="font-size:11px;color:var(--color-text-tertiary);text-align:right;">15× = auto comps; 25× = tech-auto premium</td>
+          </tr>
+          <tr>
+            <td>Robotaxi vehicle fleet</td>
+            <td class="td-bear">0.5M</td>
+            <td class="td-base">2.0M</td>
+            <td class="td-bull">4.0M</td>
+            <td style="font-size:11px;color:var(--color-text-tertiary);text-align:right;">Service launched in Austin (2025); fleet ramp highly uncertain</td>
+          </tr>
+          <tr>
+            <td>Robotaxi revenue multiple</td>
+            <td class="td-bear">20×</td>
+            <td class="td-base">25×</td>
+            <td class="td-bull">35×</td>
+            <td style="font-size:11px;color:var(--color-text-tertiary);text-align:right;">Bull reflects platform re-rating; 35× = pure marketplace multiple</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-box" style="margin-top:10px;">Fixed across all scenarios: fleet 9M vehicles · FSD $1,200/yr · FSD margin 75% · revenue per robotaxi $25,000 · platform take rate 25% · robotaxi operating margin 45% · shares outstanding 3,200M · net cash $37B</div>
+  </div>
+
+  <div class="section" style="margin-bottom:0;">
+    <div class="section-label">Explore further</div>
+    <div class="sendprompt-row">
+      <button onclick="sendPrompt('What would the valuation be if FSD penetration reaches 60% in the bull case?')">Sensitise FSD penetration ↗</button>
+      <button onclick="sendPrompt('How does this Tesla valuation compare to current TSLA market cap?')">Compare to live market cap ↗</button>
+      <button onclick="sendPrompt('Build a sensitivity table showing share price across different EV earnings and FSD penetration combinations')">Build sensitivity table ↗</button>
+      <button onclick="sendPrompt('What are the biggest risks to the bull case robotaxi assumptions?')">Robotaxi risk analysis ↗</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const text2 = isDark ? '#8299B4' : '#5F5E5A';
+const text3 = isDark ? '#4a6080' : '#888780';
+const grid  = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+const C_FSD = '#7F77DD';
+const C_EV  = '#1D9E75';
+const C_RT  = '#EF9F27';
+
+const segData = {
+  labels: ['Bear', 'Base', 'Bull'],
+  datasets: [
+    { label: 'FSD software',     data: [24.3, 60.75, 121.5],  backgroundColor: C_FSD },
+    { label: 'EV car company',   data: [120,  260,   450],     backgroundColor: C_EV  },
+    { label: 'Robotaxi network', data: [28.125, 140.625, 393.75], backgroundColor: C_RT },
+  ]
+};
+
+new Chart(document.getElementById('segChart'), {
+  type: 'bar',
+  data: segData,
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: {
+      callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.raw.toFixed(1)}B` }
+    }},
+    scales: {
+      x: { stacked: true, ticks: { color: text2, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
+      y: { stacked: true, ticks: { color: text2, font: { size: 11 }, callback: v => '$' + v + 'B' }, grid: { color: grid }, border: { display: false }, max: 1050 }
+    }
+  }
+});
+
+const fsdPct  = [14.1, 13.2, 12.6];
+const evPct   = [69.6, 56.4, 46.6];
+const rtPct   = [16.3, 30.5, 40.8];
+
+new Chart(document.getElementById('mixChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Bear', 'Base', 'Bull'],
+    datasets: [
+      { label: 'FSD %',      data: fsdPct, backgroundColor: C_FSD },
+      { label: 'EV %',       data: evPct,  backgroundColor: C_EV  },
+      { label: 'Robotaxi %', data: rtPct,  backgroundColor: C_RT  },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: {
+      callbacks: { label: ctx => ` ${ctx.dataset.label.replace(' %','')}: ${ctx.raw.toFixed(1)}%` }
+    }},
+    scales: {
+      x: { stacked: true, ticks: { color: text2, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
+      y: { stacked: true, max: 100, ticks: { color: text2, font: { size: 11 }, callback: v => v + '%' }, grid: { color: grid }, border: { display: false } }
+    }
+  }
+});
+</script>
