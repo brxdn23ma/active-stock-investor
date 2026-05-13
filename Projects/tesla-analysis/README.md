@@ -1,52 +1,30 @@
-# Tesla Analysis
+# Tesla Analysis Project
 
-A multi-part investment research project analyzing Tesla’s business model, financial performance, and valuation framework from a long-term investor perspective.
+Institutional-style equity research project analyzing Tesla's:
 
-This project combines:
-- strategic business analysis
-- financial analysis
-- valuation modeling
-- investment thesis development
+- Business model
+- Industry positioning
+- Financial performance
+- Unit economics
+- Valuation framework
+- Risk and catalyst profile
 
----
+## Components
 
-# Project Contents
+### Essays
 
-## Essay 1 — *TESLA: THE AUTONOMY WAGER*
-### Investment Thesis, Business Model & Industry Analysis
+1. Investment Thesis & Industry Analysis
+2. Financial Analysis & Unit Economics
+3. Valuation, Risks & Catalysts
 
-Analysis of Tesla’s competitive positioning, industry dynamics, growth narrative, and the long-term autonomy opportunity.
+### Analytical Dashboard
 
----
+Interactive valuation dashboard built with HTML and Excel-based financial modeling.
 
-## Essay 2 — *FOLLOW THE MONEY*
-### Financial Analysis, Unit Economics & Link to Valuation Drivers
+## Tools Used
 
-Breakdown of Tesla’s financial structure, margins, operating leverage, and the key drivers influencing future valuation.
-
----
-
-## Essay 3 — *WHAT IS TESLA WORTH?*
-### Valuation Framework, Sensitivity Analysis, Risk & Catalyst Analysis
-
-Development of a valuation framework for Tesla, including scenario analysis, risks, catalysts, and long-term investment considerations.
-
----
-
-# Upcoming Additions
-
-- Tesla 3-scenario valuation model (Excel)
-- Valuation methodology documentation
-- Financial visualizations and charts
-- Python-based Tesla analytics dashboard
-
----
-
-# Skills Demonstrated
-
-- Equity research
-- Financial statement analysis
-- Business strategy analysis
-- Valuation modeling
-- Investment reasoning
-- Long-form analytical writing
+- Excel
+- HTML/CSS
+- Financial Modeling
+- Equity Research
+- Valuation Analysis

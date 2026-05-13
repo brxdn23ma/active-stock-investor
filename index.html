@@ -1,135 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Active Stock Investor</title>
-
+    <title>Active Stock Investor | Equity Research & Data Science</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <!-- Navigation Bar -->
+    <!-- Navigation -->
     <nav>
-
-        <div class="logo">
-            Active Stock Investor
-        </div>
-
+        <div class="logo">Active Stock Investor</div>
         <ul class="nav-links">
             <li><a href="#home">Home</a></li>
             <li><a href="#projects">Projects</a></li>
-            <li><a href="#research">Trading Research</a></li>
-            <li><a href="#dashboards">Market Dashboards</a></li>
-            <li><a href="#backtests">Strategy Backtests</a></li>
-            <li><a href="#about">About Me</a></li>
+            <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
-
     </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero">
 
-        <h1>Active Stock Investor</h1>
+            <p class="hero-label">
+                EQUITY RESEARCH • FINANCIAL ANALYTICS • DATA SCIENCE
+            </p>
 
+            <h1>Active Stock Investor</h1>
+
+            <p>
+                Equity Research, Financial Analytics, <br>
+                Quantitative Investing & Data Science Projects
+            </p>
+
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects">
+            <h2>Featured Projects</h2>
+
+            <!-- Tesla Project -->
+            <div class="project-card">
+                <img src="projects/tesla-analysis/images/tesla-scenario-summary.png" 
+                     alt="Tesla Scenario Analysis for Valuation" 
+                     class="project-image">
+
+                     <div class="project-status">
+                        ACTIVE
+                    </div>
+
+                <p class="project-tag">EQUITY RESEARCH</p>
+
+                <h3>Tesla: The Autonomy Wager</h3>
+
+                <p>
+                    Institutional-style equity research project analyzing Tesla’s 
+                    valuation framework, industry positioning, unit economics, 
+                    financial performance and long-term autonomous mobility thesis.
+                </p>
+
+                <h4>Research Essays</h4>
+                <div class="project-links">
+                    <a href="projects/tesla-analysis/essays/tesla-autonomy-thesis-industry-analysis.pdf" target="_blank" class="btn">Essay 1</a>
+                    <a href="projects/tesla-analysis/essays/tesla-unit-economics-valuation-drivers.pdf" target="_blank" class="btn">Essay 2</a>
+                    <a href="projects/tesla-analysis/essays/tesla-valuation-risk-catalyst-analysis.pdf" target="_blank" class="btn">Essay 3</a>
+                </div>
+
+                <h4>Financial Model</h4>
+                <p>Integrated Excel valuation and scenario modeling framework including:</p>
+                <ul>
+                    <li>Revenue Forecasting & Operating Margin Projections</li>
+                    <li>Scenario Analysis & SOTP Valuation</li>
+                    <li>DCF Sensitivity Analysis</li>
+                </ul>
+                <div class="project-links">
+                    <a href="projects/tesla-analysis/data/tesla_valuation_model.xlsx" target="_blank" class="btn highlight">
+                        Download Excel Valuation Model
+                    </a>
+                </div>
+
+                <h4>Interactive Dashboard</h4>
+                <div class="project-links">
+                    <a href="projects/tesla-analysis/dashboard/tesla-dashboard.html" target="_blank" class="btn">
+                        Open Tesla Dashboard
+                    </a>
+                </div>
+            </div> <!-- End Project Card -->
+        </section>
+
+        <!-- About Section -->
+        <section id="about">
+            <h2>About Me</h2>
+            <div class="card">
+                <p>Economics & Data Science undergraduate focused on:</p>
+                <ul>
+                    <li>Equity Research & Quantitative Finance</li>
+                    <li>Financial Modeling & Market Analytics</li>
+                    <li>Data-Driven Investing</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2>Contact</h2>
+            <div class="card">
+                <p>Email: <a href="mailto:brandon2017ma@gmail.com">brandon2017ma@gmail.com</a></p>
+                <p>GitHub: <a href="https://github.com/brxdn23ma" target="_blank">github.com/brxdn23ma</a></p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
         <p>
-            Data Science, Financial Analytics, and Quantitative Trading Projects
+            Built with HTML, CSS & GitHub Pages • Active Stock Investor
         </p>
-
-    </section>
-
-    <!-- Projects -->
-    <section id="projects">
-
-        <h2>Projects</h2>
-
-        <div class="card">
-            <h3>Stock Analytics Dashboard</h3>
-            <p>
-                Interactive dashboard for visualizing stock performance metrics.
-            </p>
-        </div>
-
-        <div class="card">
-            <h3>Trading Strategy Backtester</h3>
-            <p>
-                Python-based backtesting engine for systematic trading strategies.
-            </p>
-        </div>
-
-    </section>
-
-    <!-- Trading Research -->
-    <section id="research">
-
-        <h2>Trading Research</h2>
-
-        <div class="card">
-            <p>
-                Research notes and market analysis will be published here.
-            </p>
-        </div>
-
-    </section>
-
-    <!-- Market Dashboards -->
-    <section id="dashboards">
-
-        <h2>Market Dashboards</h2>
-
-        <div class="card">
-            <p>
-                Live financial dashboards and visual analytics tools.
-            </p>
-        </div>
-
-    </section>
-
-    <!-- Strategy Backtests -->
-    <section id="backtests">
-
-        <h2>Strategy Backtests</h2>
-
-        <div class="card">
-            <p>
-                Quantitative trading strategy performance analysis.
-            </p>
-        </div>
-
-    </section>
-
-    <!-- About -->
-    <section id="about">
-
-        <h2>About Me</h2>
-
-        <div class="card">
-            <p>
-                Data Science & Economics undergraduate interested in
-                quantitative finance, trading systems, and financial analytics.
-            </p>
-        </div>
-
-    </section>
-
-    <!-- Contact -->
-    <section id="contact">
-
-        <h2>Contact</h2>
-
-        <div class="card">
-            <p>Email: brandon2017ma@gmail.com</p>
-            <p>GitHub: github.com/brxdn23ma</p>
-        </div>
-
-    </section>
+    </footer>
 
     <script src="script.js"></script>
-
 </body>
-
 </html>
