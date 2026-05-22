@@ -1,0 +1,7 @@
+streamlit
+pandas
+dotenv
+matplotlib
+yfinance
+sqlalchemy
+time

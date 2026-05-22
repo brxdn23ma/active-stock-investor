@@ -43,7 +43,7 @@ def plot_portfolio_allocation():
     plt.show()
 
 
-from src.portfolio.trades import (
+from src.portfolio.analytics import (
     calculate_cost_basis
 )
 

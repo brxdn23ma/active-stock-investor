@@ -3,8 +3,19 @@ import yfinance as yf
 
 def get_current_price(ticker):
 
-    stock = yf.Ticker(ticker)
+    try:
+        stock = yf.Ticker(ticker)
 
-    current_price = stock.info["regularMarketPrice"]
+        # safer method
+        history = stock.history(period="1d")
 
-    return current_price
+        if history.empty:
+            return 0.0
+
+        current_price = history["Close"].iloc[-1]
+
+        return round(float(current_price), 2)
+
+    except Exception as e:
+        print(f"Error fetching price for {ticker}: {e}")
+        return 0.0

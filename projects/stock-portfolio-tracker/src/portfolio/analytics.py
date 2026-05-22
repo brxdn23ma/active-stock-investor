@@ -52,6 +52,14 @@ def calculate_cost_basis():
     FROM trades
 
     GROUP BY ticker
+
+    HAVING
+        SUM(
+            CASE
+                WHEN action = 'BUY' THEN quantity
+                WHEN action = 'SELL' THEN -quantity
+            END
+        ) > 0
     """
 
     df = pd.read_sql(query, engine)

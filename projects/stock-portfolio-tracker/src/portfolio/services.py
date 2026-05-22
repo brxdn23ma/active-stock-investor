@@ -7,7 +7,9 @@ from src.market.market_data import (
     get_current_price
 )
 
+import streamlit as st
 
+@st.cache_data(ttl=300)
 def get_portfolio_dashboard_data():
 
     portfolio = calculate_cost_basis()

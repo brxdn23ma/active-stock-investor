@@ -1,15 +1,32 @@
 import streamlit as st
 import pandas as pd
 
-# 1. Import your interactive trading backend functions
+# Import data loading and processing functions
 from src.portfolio.trades import (
     buy_stock,
-    sell_stock
+    sell_stock,
+    view_trades,
+    reset_portfolio
 )
 
-# 2. Import your dashboard data loader service
 from src.portfolio.services import (
     get_portfolio_dashboard_data
+)
+
+from src.portfolio.performance import (
+    save_portfolio_snapshot
+)
+
+from src.portfolio.performance import (
+    get_portfolio_history
+)
+
+from src.portfolio.benchmark import (
+    get_benchmark_data
+)
+
+from src.portfolio.performance_comparison import (
+    get_normalized_benchmark_data
 )
 
 # Set up page config (Optional but recommended for layout)
@@ -19,52 +36,109 @@ st.title("Stock Portfolio Tracker")
 # ==========================================
 # Sidebar Trading Panel
 # ==========================================
-st.sidebar.header("Execute Trade")
 
-# Ensure ticker is automatically stripped and upper-cased
-ticker = st.sidebar.text_input(
-    "Ticker",
-    value="AAPL"
-).upper().strip()
+# --- SECTION 1: Portfolio Actions ---
+st.sidebar.header("💼 Portfolio Actions")
+st.sidebar.subheader("Trade Execution")
 
-action = st.sidebar.selectbox(
-    "Action",
-    ["BUY", "SELL"]
+ticker = st.sidebar.text_input("Ticker", value="AAPL").upper().strip()
+action = st.sidebar.selectbox("Action", ["BUY", "SELL"])
+quantity = st.sidebar.number_input("Quantity", min_value=1, step=1)
+price = st.sidebar.number_input("Price", min_value=0.0, step=0.01)
+submit_trade = st.sidebar.button("Submit Trade", use_container_width=True)
+
+# Add a divider line
+st.sidebar.divider()
+
+# --- SECTION 2: Data Controls ---
+st.sidebar.header("⚙️ Data Controls")
+
+save_snapshot = st.sidebar.button("Save Portfolio Snapshot", use_container_width=True)
+reset_data = st.sidebar.button("Reset Portfolio", use_container_width=True)
+
+# Add another divider line
+st.sidebar.divider()
+
+# --- SECTION 3: Analytics Settings ---
+st.sidebar.header("Analytics Settings")
+
+# Placeholder UI components for your future logic adjustments
+benchmark_period = st.sidebar.selectbox(
+    "Benchmark Period", 
+    ["1M", "3M", "6M", "YTD", "1Y", "ALL"], 
+    index=4
 )
 
-quantity = st.sidebar.number_input(
-    "Quantity",
-    min_value=1,
-    step=1
+risk_threshold = st.sidebar.slider(
+    "Systemic Risk Threshold (%)", 
+    min_value=10, 
+    max_value=100, 
+    value=50, 
+    step=5
 )
 
-price = st.sidebar.number_input(
-    "Price",
-    min_value=0.0,
-    step=0.01
-)
+# --- Action Logic Controllers ---
 
-submit_trade = st.sidebar.button(
-    "Submit Trade"
-)
-
-# If the user clicks submit, execute the backend logic and trigger a refresh
+# 1. Handle Trade Execution
 if submit_trade:
-    if action == "BUY":
-        buy_stock(ticker, quantity, price)
-    elif action == "SELL":
-        sell_stock(ticker, quantity, price)
-    
-    st.sidebar.success(f"{action} order executed for {ticker}")
-    
-    # Crucial step: forces Streamlit to rerun, pulling new data right away
+    try:
+        with st.sidebar.spinner("Processing trade..."):
+            if action == "BUY":
+                buy_stock(ticker, quantity, price)
+            elif action == "SELL":
+                sell_stock(ticker, quantity, price)
+            st.cache_data.clear() 
+        st.sidebar.success(f"{action} order executed for {ticker}")
+        st.rerun()
+    except Exception as e:
+        st.sidebar.error(str(e))
+
+# 2. Handle Snapshot Saving
+if save_snapshot:
+    with st.sidebar.spinner("Saving snapshot..."):
+        save_portfolio_snapshot(total_value, summary["cost_basis"], total_pl)
+    st.sidebar.success("Snapshot saved successfully!")
+
+# 3. Handle System Reset
+if reset_data:
+    reset_portfolio()
+    st.cache_data.clear()
+    st.sidebar.success("Portfolio reset successfully.")
     st.rerun()
+
+# --- Save Portfolio Snapshot Button ---
+save_snapshot = st.sidebar.button(
+    "Save Portfolio Snapshot"
+)
 
 # ==========================================
 # Main Dashboard Display Area
 # ==========================================
+# Use a spinner for the main dashboard data loading process
+with st.spinner("Loading portfolio dashboard data..."):
+    portfolio_df, summary = get_portfolio_dashboard_data()
+
+# Calculate portfolio return based on summary data...
+portfolio_return = 0
+if summary["cost_basis"] > 0:
+    portfolio_return = ((summary["market_value"] - summary["cost_basis"]) / summary["cost_basis"]) * 100
+
+    
 # Load your portfolio dashboard data
 portfolio_df, summary = get_portfolio_dashboard_data()
+
+#Calculate portfolio return based on summary data, with a check to avoid division by zero
+portfolio_return = 0
+
+if summary["cost_basis"] > 0:
+
+    portfolio_return = (
+        (
+            summary["market_value"]
+            - summary["cost_basis"]
+        )
+        / summary["cost_basis"]
+    ) * 100
 
 # Dynamically calculate summaries directly from the columns if keys mismatch
 if not portfolio_df.empty:
@@ -73,8 +147,8 @@ if not portfolio_df.empty:
     
     # Advanced Analytics Calculations
     portfolio_df["Weight (%)"] = (portfolio_df["Market Value"] / total_value) * 100
-    # Simple risk framework: Flag positions taking up > 50% of the portfolio
-    heavy_concentration = portfolio_df[portfolio_df["Weight (%)"] > 50.0]["Ticker"].tolist()
+    # Simple risk framework: Flag positions taking up > risk_threshold% of the portfolio
+    heavy_concentration = portfolio_df[portfolio_df["Weight (%)"] > risk_threshold]["Ticker"].tolist()
 else:
     total_value = 0.0
     total_pl = 0.0
@@ -92,6 +166,90 @@ with col3:
     st.metric("Risk Rating", risk_status)
 
 st.write("---")
+
+# --- Portfolio Performance Chart ---
+st.subheader("Portfolio Performance")
+
+# Show a spinner while pulling historical records
+with st.spinner("Compiling historical performance chart..."):
+    history_df = get_portfolio_history()
+
+if not history_df.empty:
+    history_df["snapshot_date"] = pd.to_datetime(history_df["snapshot_date"])
+    history_df = history_df.set_index("snapshot_date")
+    st.line_chart(history_df["total_value"])
+
+history_df = get_portfolio_history()
+
+if not history_df.empty:
+
+    history_df["snapshot_date"] = pd.to_datetime(
+        history_df["snapshot_date"]
+    )
+
+    history_df = history_df.set_index(
+        "snapshot_date"
+    )
+
+    st.line_chart(history_df["total_value"])
+
+st.write("---")
+
+# --- Benchmark Comparison ---
+st.subheader("Benchmark Comparison")
+
+# Show a spinner for external benchmark data fetch
+with st.spinner("Fetching market benchmarks..."):
+    benchmark_df = get_benchmark_data()
+
+portfolio_row = pd.DataFrame([{
+    "Benchmark": "Your Portfolio",
+    "Ticker": "CUSTOM",
+    "Return (%)": round(portfolio_return, 2)
+}])
+# ... (rest of your comparison dataframe code stays the same) ...
+
+
+st.write("---")
+st.subheader("Portfolio vs Market Benchmarks")
+
+# Show a spinner for the normalized time-series chart data
+with st.spinner("Normalizing performance trends..."):
+    comparison_chart_df = get_normalized_benchmark_data()
+
+if not comparison_chart_df.empty:
+    st.line_chart(comparison_chart_df)
+
+portfolio_row = pd.DataFrame([
+    {
+        "Benchmark": "Your Portfolio",
+        "Ticker": "CUSTOM",
+        "Return (%)": round(portfolio_return, 2)
+    }
+])
+
+comparison_df = pd.concat(
+    [portfolio_row, benchmark_df],
+    ignore_index=True
+)
+
+st.dataframe(
+    comparison_df,
+    use_container_width=True
+)
+
+st.write("---")
+
+st.subheader("Portfolio vs Market Benchmarks")
+
+comparison_chart_df = (
+    get_normalized_benchmark_data()
+)
+
+if not comparison_chart_df.empty:
+
+    st.line_chart(comparison_chart_df)
+
 
 # --- Interactive Analytics Table ---
 st.subheader("Allocation & Positions Analysis")
@@ -118,9 +276,9 @@ with st.container():
     if not portfolio_df.empty:
         # Insight 1: Diversification Check
         if heavy_concentration:
-            st.warning(f"**Concentration Risk Alert:** Your position in **{', '.join(heavy_concentration)}** represents more than 50% of your total capital. Consider trimming or adding alternative assets to rebalance.")
+            st.warning(f"**Concentration Risk Alert:** Your position in **{', '.join(heavy_concentration)}** represents more than {risk_threshold}% of your total capital. Consider trimming or adding alternative assets to rebalance.")
         else:
-            st.success("**Diversification Matrix:** Capital distribution looks healthy. No single asset exceeds our 50% systemic risk threshold.")
+            st.success(f"**Diversification Matrix:** Capital distribution looks healthy. No single asset exceeds our {risk_threshold}% systemic risk threshold.")
             
         # Insight 2: Performance Commentary
         top_winner = portfolio_df.sort_values(by="Unrealized P/L", ascending=False).iloc[0]
@@ -130,3 +288,19 @@ with st.container():
             st.info("**Market Conditions:** All active positions are currently weathering unrealized drawdowns. This is an opportune time to review cost-averaging strategy options via the sidebar panel.")
     else:
         st.write("Execute your first trade to unlock automated quantitative analysis and strategic position insights.")
+
+
+# --- Trade History ---
+st.subheader("Trade History")
+
+trades_df = view_trades()
+
+if not trades_df.empty:
+
+    st.dataframe(
+        trades_df,
+        use_container_width=True
+    )
+
+else:
+    st.info("No trades found.")
