@@ -29,6 +29,18 @@ from src.portfolio.performance_comparison import (
     get_normalized_benchmark_data
 )
 
+from src.portfolio.performance import (
+    get_equity_curve
+)
+
+from src.portfolio.realized_pl import (
+    calculate_realized_pl
+)
+
+from src.portfolio.position_attribution import (
+    calculate_position_attribution
+)
+
 # Set up page config (Optional but recommended for layout)
 st.set_page_config(layout="wide")
 st.title("Stock Portfolio Tracker")
@@ -153,17 +165,30 @@ else:
     total_value = 0.0
     total_pl = 0.0
 
+# Calculate realized P/L from trade history
+realized_pl = calculate_realized_pl()
+
+
 # Layout grid for summary metrics and advanced analytics
 st.subheader("Executive Portfolio Summary")
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric("Total Portfolio Value", f"${total_value:,.2f}")
 with col2:
     # This will display negative numbers nicely as -$12,614.62
     st.metric("Total Gain/Loss", f"${total_pl:,.2f}")
 with col3:
-    risk_status = "⚠️ High Risk" if heavy_concentration else "✅ Diversified"
-    st.metric("Risk Rating", risk_status)
+    st.metric("Realized P/L", f"${realized_pl:,.2f}")
+with col4:
+    risk_status = (
+        "⚠️ High Risk"
+        if heavy_concentration
+        else "✅ Diversified"
+    )
+    st.metric(
+        "Risk Rating",
+        risk_status
+    )
 
 st.write("---")
 
@@ -207,10 +232,9 @@ portfolio_row = pd.DataFrame([{
     "Ticker": "CUSTOM",
     "Return (%)": round(portfolio_return, 2)
 }])
-# ... (rest of your comparison dataframe code stays the same) ...
-
 
 st.write("---")
+
 st.subheader("Portfolio vs Market Benchmarks")
 
 # Show a spinner for the normalized time-series chart data
@@ -240,15 +264,52 @@ st.dataframe(
 
 st.write("---")
 
-st.subheader("Portfolio vs Market Benchmarks")
-
-comparison_chart_df = (
-    get_normalized_benchmark_data()
+# --- Position Attribution ---
+st.subheader(
+    "Performance Attribution"
 )
 
-if not comparison_chart_df.empty:
+attribution_df = (
+    calculate_position_attribution()
+)
 
-    st.line_chart(comparison_chart_df)
+if not attribution_df.empty:
+
+    st.dataframe(
+        attribution_df.style.format({
+            "Realized P/L": "${:,.2f}",
+            "Unrealized P/L": "${:,.2f}",
+            "Total P/L": "${:,.2f}"
+        }),
+        use_container_width=True
+    )
+
+else:
+
+    st.info(
+        "No attribution data available."
+    )
+
+# --- Portfolio Equity Curve ---
+st.subheader("Portfolio Equity Curve")
+
+equity_df = get_equity_curve()
+
+if not equity_df.empty:
+
+    equity_df = equity_df.set_index(
+        "snapshot_date"
+    )
+
+    st.line_chart(
+        equity_df["equity_curve"]
+    )
+
+else:
+
+    st.info(
+        "Save portfolio snapshots to build equity curve history."
+    )
 
 
 # --- Interactive Analytics Table ---

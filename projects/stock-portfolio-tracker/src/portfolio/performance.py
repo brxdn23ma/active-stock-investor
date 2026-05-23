@@ -49,3 +49,32 @@ def get_portfolio_history():
     """
 
     return pd.read_sql(query, engine)
+
+
+def get_equity_curve():
+    
+    query = """
+    SELECT
+        snapshot_date,
+        total_value
+    FROM portfolio_snapshots
+    ORDER BY snapshot_date
+    """
+
+    df = pd.read_sql(query, engine)
+
+    if df.empty:
+        return df
+
+    df["snapshot_date"] = pd.to_datetime(
+        df["snapshot_date"]
+    )
+
+    # Normalize to 100
+    starting_value = df["total_value"].iloc[0]
+
+    df["equity_curve"] = (
+        df["total_value"] / starting_value
+    ) * 100
+
+    return df
