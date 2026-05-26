@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 from sqlalchemy import text
 from src.db.db_connection import engine
 
@@ -8,6 +9,10 @@ def save_portfolio_snapshot(
     total_cost,
     total_profit_loss
 ):
+
+    total_value = float(total_value)
+    total_cost = float(total_cost)
+    total_profit_loss = float(total_profit_loss)
 
     query = text("""
         INSERT INTO portfolio_snapshots (
@@ -22,8 +27,7 @@ def save_portfolio_snapshot(
         )
     """)
 
-    with engine.connect() as conn:
-
+    with engine.begin() as conn:
         conn.execute(
             query,
             {
@@ -33,9 +37,6 @@ def save_portfolio_snapshot(
             }
         )
 
-        conn.commit()
-
-import streamlit as st
 
 @st.cache_data(ttl=300)
 def get_portfolio_history():
@@ -52,7 +53,6 @@ def get_portfolio_history():
 
 
 def get_equity_curve():
-    
     query = """
     SELECT
         snapshot_date,
@@ -64,17 +64,16 @@ def get_equity_curve():
     df = pd.read_sql(query, engine)
 
     if df.empty:
-        return df
+        # Return empty Series instead of empty DataFrame
+        return pd.Series(dtype=float)
 
-    df["snapshot_date"] = pd.to_datetime(
-        df["snapshot_date"]
-    )
+    df["snapshot_date"] = pd.to_datetime(df["snapshot_date"])
+    df = df.set_index("snapshot_date").sort_index()
 
     # Normalize to 100
     starting_value = df["total_value"].iloc[0]
 
-    df["equity_curve"] = (
-        df["total_value"] / starting_value
-    ) * 100
+    df["equity_curve"] = (df["total_value"] / starting_value) * 100
 
-    return df
+    # Return the equity_curve series
+    return df["equity_curve"]

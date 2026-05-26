@@ -5,12 +5,17 @@ import pandas as pd
 
 def buy_stock(ticker, quantity, price):
 
+    print("BUY FUNCTION STARTED")
+
     insert_query = text("""
         INSERT INTO trades (ticker, action, quantity, price)
         VALUES (:ticker, :action, :quantity, :price)
     """)
 
-    with engine.connect() as conn:
+    with engine.begin() as conn:
+
+        print("DB CONNECTION OPEN")
+
         conn.execute(
             insert_query,
             {
@@ -20,7 +25,8 @@ def buy_stock(ticker, quantity, price):
                 "price": price
             }
         )
-        conn.commit()
+
+        print("INSERT EXECUTED")
 
     print(f"Bought {quantity} shares of {ticker}")
 
@@ -42,7 +48,7 @@ def sell_stock(ticker, quantity, price):
         WHERE ticker = :ticker
     """)
 
-    with engine.connect() as conn:
+    with engine.begin() as conn:
 
         result = conn.execute(
             holdings_query,
@@ -72,8 +78,6 @@ def sell_stock(ticker, quantity, price):
             }
         )
 
-        conn.commit()
-
     print(f"Sold {quantity} shares of {ticker}")
 
 
@@ -96,8 +100,7 @@ def reset_portfolio():
         DELETE FROM trades
     """)
 
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         conn.execute(delete_query)
-        conn.commit()
 
     print("Portfolio reset complete.")

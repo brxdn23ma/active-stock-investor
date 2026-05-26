@@ -15,4 +15,6 @@ DATABASE_URL = (
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 
+print(DATABASE_URL)
+
 engine = create_engine(DATABASE_URL)
