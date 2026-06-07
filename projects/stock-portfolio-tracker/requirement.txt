@@ -1,7 +1,6 @@
 streamlit
 pandas
-dotenv
+python-dotenv
 matplotlib
 yfinance
 sqlalchemy
-time

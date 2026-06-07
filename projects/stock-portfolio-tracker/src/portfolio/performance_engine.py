@@ -9,8 +9,9 @@ from .risk_analytics import (
     calculate_volatility,
     calculate_sharpe_ratio,
     calculate_max_drawdown,
+    calculate_return_series,
 )
-
+RISK_FREE_RATE = 0.045  # Example risk-free rate (4.5%)
 
 def _compute_simple_returns_from_equity(equity: pd.Series) -> pd.Series: 
     # specifies that the function takes a pandas Series as input and returns a pandas Series as output
@@ -25,7 +26,7 @@ def _compute_simple_returns_from_equity(equity: pd.Series) -> pd.Series:
 
 def _compute_summary_metrics(
     returns: pd.Series,
-    risk_free_rate: float = 0.0,
+    risk_free_rate = RISK_FREE_RATE,
     label: str = "Portfolio",
 ) -> dict:
     """
@@ -42,9 +43,12 @@ def _compute_summary_metrics(
         }
 
     cumulative_return = (1 + returns).prod() - 1
-    vol = calculate_volatility(returns)
-    sharpe = calculate_sharpe_ratio(returns, risk_free_rate=risk_free_rate)
-    mdd = calculate_max_drawdown((1 + returns).cumprod())
+
+    retn = calculate_return_series()  # Ensure we have a return series (if not already)
+    vol = calculate_volatility(retn)
+    sharpe = calculate_sharpe_ratio(returns, risk_free_rate = risk_free_rate)
+    equity_curve = (1 + returns).cumprod()
+    mdd = calculate_max_drawdown(equity_curve)
 
     metrics["Label"] = label
     metrics["Total Return (%)"] = cumulative_return * 100
@@ -76,7 +80,7 @@ def get_benchmark_equity_curve(
 def build_combined_performance_dashboard(
     benchmark_symbol: str = "^GSPC",
     period: str = "1Y",
-    risk_free_rate: float = 0.0,
+    risk_free_rate = RISK_FREE_RATE,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Build combined portfolio vs benchmark performance for dashboard use.

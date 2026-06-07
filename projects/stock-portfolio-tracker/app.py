@@ -1,6 +1,5 @@
 # cd ~/_Documents/github/active-stock-investor/projects/stock-portfolio-tracker
 
-
 import streamlit as st
 import pandas as pd
 
@@ -20,6 +19,7 @@ from src.portfolio.services import (
 )
 
 from src.portfolio.performance import (
+    get_equity_curve,
     save_portfolio_snapshot,
 )
 
@@ -39,6 +39,7 @@ from src.portfolio.risk_analytics import (
     calculate_volatility,
     calculate_sharpe_ratio,
     calculate_max_drawdown,
+    calculate_return_series,
 )
 
 
@@ -138,9 +139,11 @@ else:
 realized_pl = calculate_realized_pl()
 
 # Risk / Performance aggregates (time-series based)
-volatility = calculate_volatility()
-sharpe_ratio = calculate_sharpe_ratio()
-max_drawdown = calculate_max_drawdown()
+returns = calculate_return_series()
+volatility = calculate_volatility(returns)
+sharpe_ratio = calculate_sharpe_ratio(returns, risk_free_rate=0.045)
+equity_curve = get_equity_curve()
+max_drawdown = calculate_max_drawdown(equity_curve)
 
 # Only compute weights and concentration if there is data
 heavy_concentration = []
