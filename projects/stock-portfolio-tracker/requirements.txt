@@ -4,3 +4,4 @@ python-dotenv
 matplotlib
 yfinance
 sqlalchemy
+psycopg2-binary
