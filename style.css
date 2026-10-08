@@ -42,6 +42,7 @@ nav {
 }
 
 .logo {
+    flex-shrink: 0;
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 1px;
@@ -50,8 +51,11 @@ nav {
 
 .nav-links {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     list-style: none;
     gap: 30px;
+    margin-left: 24px;
 }
 
 .nav-links a {
@@ -123,6 +127,26 @@ section h2 {
     margin-bottom: 50px;
     font-weight: 700;
     letter-spacing: -1px;
+}
+
+#general-market-observations {
+    scroll-margin-top: 120px;
+}
+
+.observation-card {
+    padding-top: 35px;
+}
+
+.observation-card .project-tag {
+    color: #7da2ff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.observation-card h3 {
+    margin-top: 0;
+    line-height: 1.35;
 }
 
 /* =========================
@@ -334,4 +358,31 @@ footer {
         margin-right: 25px;
     }
 
+}
+
+@media (max-width: 700px) {
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 16px 7%;
+    }
+
+    .nav-links {
+        justify-content: flex-start;
+        gap: 6px 18px;
+        margin-left: 0;
+    }
+
+    #general-market-observations {
+        scroll-margin-top: 180px;
+    }
+
+    #general-market-observations h2 {
+        font-size: 2rem;
+    }
+
+    .observation-card h3 {
+        font-size: 1.55rem;
+    }
 }
